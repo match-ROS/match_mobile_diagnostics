@@ -1,0 +1,173 @@
+{
+  "profile_version": 1,
+  "robot": "mur620b",
+  "id": "mur620b",
+  "ros_domain_id": 62,
+  "has_lifts": false,
+  "bms_id": "0x0140",
+  "can_interface": "can0",
+  "can_bitrate": 250000,
+  "lift_ticks_per_meter": 3225.0,
+  "hostname": "mur620b",
+  "management_address": "10.145.8.54/24",
+  "management_interface": "enp90s0",
+  "management_gateway": "10.145.8.250",
+  "management_dns": "10.145.8.249",
+  "robot_interface": "eno1",
+  "robot_address": "192.168.12.69/24",
+  "reverse_ip": "192.168.12.69",
+  "mir_address": "192.168.12.20",
+  "ur_type": "ur10",
+  "arms": {
+    "l": {
+      "address": "192.168.12.89",
+      "hostname": "UR10_l",
+      "reverse_ports": [
+        50005,
+        50006,
+        50007,
+        50008
+      ]
+    },
+    "r": {
+      "address": "192.168.12.90",
+      "hostname": "UR10_r",
+      "reverse_ports": [
+        50001,
+        50002,
+        50003,
+        50004
+      ]
+    }
+  },
+  "lift_ports": {},
+  "freshness": {
+    "mir_battery": 10.0,
+    "mur_battery": 5.0,
+    "lift": 2.0,
+    "dashboard": 6.0
+  },
+  "expected_workspace": "/home/rosmatch/colcon_ws",
+  "provenance": {
+    "ros_domain_id": {
+      "source": "Diagnostic defaults; base_gui.py and mur_620.launch.py",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "has_lifts": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "bms_id": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "can_interface": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "can_bitrate": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "lift_ticks_per_meter": {
+      "source": "Diagnostic defaults; base_gui.py and mur_620.launch.py",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "hostname": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "management_address": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "management_interface": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "management_gateway": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "management_dns": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "robot_interface": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "robot_address": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "reverse_ip": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "mir_address": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "ur_type": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "arms": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "lift_ports": {
+      "source": "match_mobile_robotics_jazzy/config/host_profiles/mur620b.conf",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "freshness": {
+      "source": "Diagnostic defaults; base_gui.py and mur_620.launch.py",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    },
+    "expected_workspace": {
+      "source": "Diagnostic defaults; base_gui.py and mur_620.launch.py",
+      "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
+      "status": "configured_not_live_verified",
+      "recorded_at": "2026-09-29"
+    }
+  }
+}

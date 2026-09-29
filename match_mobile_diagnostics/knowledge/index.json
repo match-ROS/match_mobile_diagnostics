@@ -1,0 +1,200 @@
+[
+  {
+    "id": "network_address",
+    "title": "UR oder MiR im internen Netzwerk nicht erreichbar",
+    "symptoms": [
+      "UR links nicht erreichbar",
+      "UR rechts nicht erreichbar",
+      "MiR nicht erreichbar"
+    ],
+    "checks": [
+      "network.",
+      "ur.l.dashboard",
+      "ur.r.dashboard"
+    ],
+    "manual_steps": [
+      "Interne PC-Adresse ist 192.168.12.69/24.",
+      "Link-LEDs und Stromversorgung des internen Switches prüfen.",
+      "Kabelweg vom PC zum Switch und betroffenen Gerät verfolgen.",
+      "Am Pendant die tatsächliche UR-Adresse ablesen."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "management_dhcp",
+    "title": "Roboter-PC über WLAN oder Repeater nicht erreichbar",
+    "symptoms": [
+      "SSH nicht erreichbar",
+      "Verbindung bricht ab"
+    ],
+    "checks": [
+      "network.management",
+      "network.recent_conflicts",
+      "ssh.connection"
+    ],
+    "manual_steps": [
+      "Management-Kabel und Repeater-Verbindung prüfen.",
+      "Aktive Management-Adresse mit dem Sollprofil vergleichen.",
+      "NetworkManager-Methode und DHCP-Meldungen prüfen."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "ur_connection",
+    "title": "UR-Dashboard, Remote-Modus und Sicherheitszustand",
+    "symptoms": [
+      "UR links nicht erreichbar",
+      "UR rechts nicht erreichbar",
+      "UR ist im Not-Halt"
+    ],
+    "checks": [
+      "ur.l.",
+      "ur.r."
+    ],
+    "manual_steps": [
+      "Am richtigen Teach Pendant den aktuellen Sicherheitszustand prüfen.",
+      "Bei unterstützten Robotermodellen den Remote-Modus prüfen.",
+      "Ausgewähltes PolyScope-Programm und External-Control-Knoten prüfen."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "ur_reverse",
+    "title": "Programm läuft, aber UR-Treiber ist nicht verbunden",
+    "symptoms": [
+      "UR nimmt keine Befehle an",
+      "UR-Programm läuft ohne Verbindung"
+    ],
+    "checks": [
+      "ur.l.reverse",
+      "ur.r.reverse"
+    ],
+    "manual_steps": [
+      "Im External-Control-Knoten die PC-Adresse und den Port ablesen.",
+      "Aktive ROS-Controller und Treiberstatus kontrollieren.",
+      "Aktuelle Reverse-Verbindung und aktuelle Abbruchmeldungen vergleichen."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "ros_discovery",
+    "title": "Daten lokal vorhanden, auf dem Laptop unsichtbar",
+    "symptoms": [
+      "ROS-Daten fehlen",
+      "Laptop sieht Roboter nicht"
+    ],
+    "checks": [
+      "ros.",
+      "network.discovery"
+    ],
+    "manual_steps": [
+      "ROS_DOMAIN_ID auf Roboter und Laptop vergleichen.",
+      "Physische Roboteridentität und ROS-Namespace getrennt prüfen.",
+      "Bei lokal vorhandenen Topics RMW-/Discovery-/Peer-Konfiguration vergleichen."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "battery_can",
+    "title": "Aufbaubatterie fehlt oder ist veraltet",
+    "symptoms": [
+      "Keine Batteriedaten",
+      "Aufbaubatterie fehlt"
+    ],
+    "checks": [
+      "battery.can",
+      "ros.mur_battery",
+      "ros.bms_id"
+    ],
+    "manual_steps": [
+      "USB-CAN-Adapter und Verkabelung prüfen.",
+      "can0 vorhanden und aktiv mit 250000 bit/s prüfen.",
+      "BMS-ID mit dem ausgewählten Roboter vergleichen."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "lift_serial",
+    "title": "Hubsäule fehlt oder Kommunikation ist unterbrochen",
+    "symptoms": [
+      "Hubsäule reagiert nicht",
+      "Hubsäulenstatus fehlt"
+    ],
+    "checks": [
+      "lift.",
+      "ros.lift_"
+    ],
+    "manual_steps": [
+      "USB-Adapter und serielle Kabel links/rechts verfolgen.",
+      "Tatsächliche by-id-Geräte und Zugriffsrechte prüfen.",
+      "Aktuelle Kommunikationsdiagnose und Fehlerhistorie getrennt betrachten."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "lift_mixed_data",
+    "title": "Hubsäulenhöhe springt zwischen Robotern",
+    "symptoms": [
+      "Hubsäulenhöhe springt"
+    ],
+    "checks": [
+      "ros.lift_l",
+      "ros.lift_r"
+    ],
+    "manual_steps": [
+      "Roboter- und seitenspezifisches Ewellix-State-Topic prüfen.",
+      "Globales /joint_states nicht als eindeutige Hubsäulenquelle verwenden."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "host_setup",
+    "title": "Host vorbereitet, aber Treiber startet nicht",
+    "symptoms": [
+      "ROS fehlt",
+      "Diagnosekern fehlt",
+      "Echtzeitwarnungen"
+    ],
+    "checks": [
+      "host.",
+      "ssh.",
+      "ros.available"
+    ],
+    "manual_steps": [
+      "Aktiv gebooteten Kernel und aktuelle Sitzungslimits prüfen.",
+      "Jazzy- und Workspace-Setup vorhanden prüfen.",
+      "Benötigte ROS-Nachrichtenpakete und python-can prüfen."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  },
+  {
+    "id": "driver_installation",
+    "title": "Treiberinstallation, Kalibrierung und aktuelle Logs",
+    "symptoms": [
+      "Hardwarestart bricht ab",
+      "Kalibrierungswarnung",
+      "Doppelte Treiber"
+    ],
+    "checks": [
+      "installation.",
+      "logs.",
+      "ros.duplicate_nodes"
+    ],
+    "manual_steps": [
+      "Installierte Launch-/Xacro-Dateien und Symlink-Ziele prüfen.",
+      "Treiberrevision und passende UR-Kalibrierungsdatei prüfen.",
+      "Logzeitpunkt, Roboter und aktuellen Prozessstart zuordnen."
+    ],
+    "evidence_status": "historical_cases_and_configured_expectations",
+    "updated_at": "2026-09-29"
+  }
+]
