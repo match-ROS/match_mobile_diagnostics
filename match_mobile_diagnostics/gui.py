@@ -7,7 +7,9 @@ import codecs
 from datetime import datetime, timezone
 import html
 import json
+import os
 from pathlib import Path
+import socket
 import sys
 import time
 import uuid
@@ -30,6 +32,7 @@ STAT_LABELS = {
     "mir_battery": "MiR · Akku", "mur_battery": "MuR · Akku",
     "ur_l": "UR10 links", "ur_r": "UR10 rechts",
     "lift_l": "Hubsäule links", "lift_r": "Hubsäule rechts",
+    "clock": "Zeitsynchronisation",
 }
 
 
@@ -97,10 +100,13 @@ if QtWidgets is not None:
             layout = QtWidgets.QGridLayout(selection)
             self.robot_combo = QtWidgets.QComboBox()
             self.robot_combo.addItems(["mur620a", "mur620b", "mur620c", "mur620d"])
-            self.robot_combo.setCurrentText("mur620d")
+            local_robot = socket.gethostname().split(".")[0]
+            self.robot_combo.setCurrentText(local_robot if local_robot in ("mur620a", "mur620b", "mur620c", "mur620d") else "mur620d")
             self.via_combo = QtWidgets.QComboBox()
             self.via_combo.addItem("Roboter-PC über SSH", "ssh")
             self.via_combo.addItem("Auf diesem PC", "local")
+            if local_robot == self.robot_combo.currentText():
+                self.via_combo.setCurrentIndex(1)
             self.mode_combo = QtWidgets.QComboBox()
             self.mode_combo.addItem("Laufender Betrieb", "operational")
             self.mode_combo.addItem("Vor dem Treiberstart", "preflight")
@@ -367,6 +373,14 @@ if QtWidgets is not None:
             process.errorOccurred.connect(
                 lambda error: self._process_error(process, generation, error))
             self._set_running(True)
+            # The offline CLI launcher adds its release to sys.path only in this process.
+            # Pass that path to the Python child that performs the actual scan.
+            environment = QtCore.QProcessEnvironment.systemEnvironment()
+            package_root = str(Path(__file__).resolve().parent.parent)
+            python_paths = [path for path in environment.value("PYTHONPATH").split(os.pathsep) if path]
+            if package_root not in python_paths:
+                environment.insert("PYTHONPATH", os.pathsep.join([package_root, *python_paths]))
+            process.setProcessEnvironment(environment)
             process.start(sys.executable, self.command_arguments(watch))
 
         def _read_errors(self, process, generation):
@@ -510,7 +524,7 @@ if QtWidgets is not None:
                 return
             elapsed = time.monotonic() - self._report_received_at
             limits = {"mir_battery": 10.0, "mur_battery": 5.0,
-                      "ur_l": 6.0, "ur_r": 6.0, "lift_l": 2.0, "lift_r": 2.0}
+                      "ur_l": 6.0, "ur_r": 6.0, "lift_l": 2.0, "lift_r": 2.0, "clock": 60.0}
             for key, label in self.stat_labels.items():
                 stat = self._last_report.get("stats", {}).get(key, {})
                 age = stat.get("age_seconds") if isinstance(stat, dict) else None

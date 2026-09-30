@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>match_mobile_diagnostics</name>
-  <version>0.1.0</version>
+  <version>0.1.2</version>
   <description>Read-only MuR hardware diagnostics with optional ROS and Qt adapters.</description>
   <maintainer email="Recker@match.uni-hannover.de">rosmatch</maintainer>
   <license>MIT</license>

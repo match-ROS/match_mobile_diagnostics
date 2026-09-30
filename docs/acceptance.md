@@ -65,3 +65,11 @@ Die vollständigen Berichte bleiben lokal; die folgenden Pfade dienen nur als Na
 Offen bleiben die **physische Links-/Rechts-Bestätigung der Liftadapter auf C** und die **Live-Abnahme des separat gebauten Ewellix-Patches** nach einer ausdrücklich koordinierten Anwendung und einem späteren Treiberneustart. Die aktuelle Zuordnung auf C bleibt vorläufig. Ohne den Diagnose-Heartbeat des Patches bleiben Hardwarekommunikation und aktuelle Aktuatorzustände trotz eintreffender Lift-State-Nachrichten unbestätigt; Fehlerhistorien werden nicht als aktuelle Aktuatorfehler ausgegeben.
 
 Die positive Anzeige aktiver UR-ROS-Controller und einer vollständigen UR-Rückverbindung ist mit automatisierten Szenarien geprüft, aber beim beobachteten Hardwarezustand nicht vollständig live validiert. Es wurden keine Fehler durch Kabelziehen, Netzwerkänderungen, Not-Halt-Betätigung oder Controllerwechsel herbeigeführt. Rohlogs, private Chatverläufe und Zugangsdaten wurden nicht in dieses Repository übernommen.
+
+## Nachtrag vom 30. September 2026: GUI-Start aus der Offline-Installation
+
+Version **0.1.1** behebt einen Startfehler der installierten GUI: Der CLI-Einstieg konnte das Paket durch einen nur im Elternprozess gesetzten Python-Suchpfad laden. Sein GUI-Kindprozess startete anschließend mit `python -m match_mobile_diagnostics.cli` ohne diesen Pfad und lieferte außerhalb des Repositorys `ModuleNotFoundError` statt eines Berichts. Die GUI übergibt nun den Paketpfad an ihren Kindprozess. Auf einem MuR-PC wählt sie zudem dessen Roboteridentität und lokalen Zugriff vor.
+
+**114 Tests** und der Wheel-Bau für 0.1.1 bestanden. Der Fehler wurde aus dem installierten Release außerhalb des Repositorys zuerst reproduziert und anschließend mit einer echten **mur620a-SSH-Vorabdiagnose** geprüft. Direkt auf mur620a startete die installierte GUI im Offscreen-Test mit `mur620a / local` und zeigte einen vollständigen Teilbericht mit 15 Befundgruppen. Dieser Bericht enthielt weiterhin einen CAN-Hinweis und ein nicht prüfbares Hardwarelog; er wurde korrekt als unvollständig bewertet.
+
+Die Installation **0.1.1** wurde auf dem Entwicklungsrechner und auf **mur620a** bestätigt. Die Aktualisierung von mur620b–d konnte an diesem Tag nicht erfolgen: SSH meldete für alle drei Ziele `No route to host`. Für diese PCs ist die installierte Version 0.1.1 damit noch nicht bestätigt.

@@ -1,5 +1,6 @@
 """Shared diagnosis engine: observations run on the selected physical host."""
 from concurrent.futures import ThreadPoolExecutor, wait
+import copy
 import json
 import os
 import queue
@@ -14,6 +15,7 @@ import time
 
 from . import __version__
 from .dashboard import query_dashboard, evaluate_dashboard
+from .clock import collect_clock, compare_remote_clock, clock_stat
 from .host import collect_host, collect_sockets
 from .logs import collect_integration
 from .models import STATUSES, finalize, new_report, result
@@ -34,7 +36,7 @@ def age_payload(payload, elapsed):
         raise ValueError("Ungültige verstrichene Beobachtungszeit")
     elapsed = max(0.0, elapsed)
     limits = {"mir_battery": 10.0, "mur_battery": 5.0, "lift": 2.0, "dashboard": 6.0,
-              "bms_id": 10.0, "controllers": 10.0}
+              "bms_id": 10.0, "controllers": 10.0, "clock": 60.0}
     profile = payload.get("profile", {})
     configured = profile.get("freshness", {}) if isinstance(profile, dict) else {}
     direct = payload.get("freshness", {})
@@ -66,6 +68,8 @@ def age_payload(payload, elapsed):
     def check_limit(check_id):
         if check_id in ("ros.mir_battery", "ros.mur_battery", "ros.bms_id"):
             return limits[check_id.split(".", 1)[1]]
+        if check_id.startswith("clock."):
+            return limits["clock"]
         if re.fullmatch(r"ros\.lift_[lr]", check_id):
             return limits["lift"]
         if re.fullmatch(r"ros\.ur_[lr]\.state", check_id):
@@ -99,7 +103,7 @@ def age_payload(payload, elapsed):
     stats = payload.get("stats", {})
     for key, limit_key in (("mir_battery", "mir_battery"), ("mur_battery", "mur_battery"),
                            ("lift_l", "lift"), ("lift_r", "lift"),
-                           ("ur_l", "dashboard"), ("ur_r", "dashboard")):
+                           ("ur_l", "dashboard"), ("ur_r", "dashboard"), ("clock", "clock")):
         stat = stats.get(key)
         if not isinstance(stat, dict) or stat.get("status") == "not_applicable":
             continue
@@ -243,6 +247,7 @@ def local_scan(robot, namespace=None, workspace=None, mode="operational", durati
                 jobs["integration"] = pool.submit(collect_integration, workspace)
             if host_results is not None:
                 report["results"].extend(host_results)
+            jobs["clock"] = pool.submit(collect_clock, profile["time_server"], "robot")
             if owned_stream is not None:
                 deadline = time.monotonic() + duration + 15
                 while owned_stream.latest is None and owned_stream.process.poll() is None and time.monotonic() < deadline:
@@ -293,6 +298,7 @@ def local_scan(robot, namespace=None, workspace=None, mode="operational", durati
                 if item["id"] in (f"ur.{side}.dashboard", f"ur.{side}.reverse") and item["status"] == "fail":
                     item["status"] = "unknown"
                     item["causes"].insert(0, "Fehlgeschlagene Voraussetzung: " + prerequisite)
+    report["stats"]["clock"] = clock_stat(report["results"])
     return finalize(report)
 
 
@@ -435,29 +441,60 @@ def laptop_discovery(report):
                   knowledge_id="ros_discovery")
 
 
+def _remote_clock_results(target, expected_server):
+    return collect_clock(expected_server, 'observer') + [compare_remote_clock(target)]
+
+
+def _ensure_robot_clock(report):
+    if not any(item['id'].startswith('clock.robot.') for item in report['results']):
+        report['results'].append(result('clock.robot.version', 'Zeit', 'unknown',
+            'Roboterbericht enthält noch keine Chrony-Prüfungen', expected='Diagnosekern mit Zeitprüfung',
+            actual=report.get('tool_version'), source=report.get('target', ''), knowledge_id='clock_sync',
+            next_steps=['Diagnosekern auf dem Roboter-PC aktualisieren.']))
+
+
 def scan(**options):
     via = options.pop("via", "local")
     if via == "ssh":
+        profile = load_profile(options["robot"])
+        target = options.get('host') or options['robot']
         probe = new_report(options["robot"], options.get("namespace") or "/" + options["robot"], options.get("mode", "operational"), "laptop")
-        probe["observation_domain_id"] = options.get("domain_id") if options.get("domain_id") is not None else load_profile(options["robot"])["ros_domain_id"]
+        probe["observation_domain_id"] = options.get("domain_id") if options.get("domain_id") is not None else profile["ros_domain_id"]
         probe["results"] = [{"id": "ros.driver", "actual": ["comparison pending"]}]
-        with ThreadPoolExecutor(max_workers=1) as pool:
-            pending = pool.submit(laptop_discovery, probe)
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            discovery = pool.submit(laptop_discovery, probe)
+            observer_started = time.monotonic()
+            observer = pool.submit(collect_clock, profile['time_server'], 'observer')
             report = remote_scan(**options)
             received = time.monotonic()
+            pair = pool.submit(compare_remote_clock, target) if any(
+                item['id'] == 'host.identity' and item['status'] == 'pass' for item in report['results']) else None
             remote_driver = next((r for r in report["results"] if r["id"] == "ros.driver"), {})
-            comparison = pending.result() if remote_driver.get("actual") else laptop_discovery(report)
+            comparison = discovery.result() if remote_driver.get("actual") else laptop_discovery(report)
+            observer_results = observer.result()
+            age_payload({'results': observer_results}, time.monotonic() - observer_started)
+            clock_results = observer_results
+            if pair is not None:
+                clock_results.append(pair.result())
+            else:
+                clock_results.append(result('clock.pair.offset', 'Zeit', 'unknown',
+                    'Zeitdifferenz ohne Roboterbericht nicht messbar', source='SSH-Zeitprobe',
+                    knowledge_id='clock_sync'))
         age_payload(report, time.monotonic() - received)
-        report["results"].append(comparison)
+        _ensure_robot_clock(report)
+        report["results"].extend([comparison, *clock_results])
+        report['stats']['clock'] = clock_stat(report['results'])
         return finalize(report)
     options.pop("host", None)
     return local_scan(**options)
 
-
 def watch(interval=2.0, **options):
     if options.get("via") == "ssh":
+        profile = load_profile(options['robot'])
+        target = options.get('host') or options['robot']
         updated, comparison, pending = 0.0, None, None
-        with ThreadPoolExecutor(max_workers=1) as pool:
+        clock_updated, clock_checks, clock_pending = 0.0, None, None
+        with ThreadPoolExecutor(max_workers=2) as pool:
             for report in remote_watch(interval=interval, **options):
                 if pending is not None and pending.done():
                     comparison = pending.result()
@@ -466,6 +503,20 @@ def watch(interval=2.0, **options):
                         comparison.get("status") == "not_applicable" and any(r["id"] == "ros.driver" and r.get("actual") for r in report["results"])):
                     pending = pool.submit(laptop_discovery, json.loads(json.dumps(report)))
                 report["results"].append(comparison or result("network.discovery", "Netzwerk", "unknown", "Optionaler Laptop-Discovery-Vergleich läuft", source="Laptop/Robotervergleich"))
+                if clock_pending is not None and clock_pending.done():
+                    clock_checks = clock_pending.result()
+                    clock_updated, clock_pending = time.monotonic(), None
+                if clock_pending is None and (clock_checks is None or time.monotonic() - clock_updated > 30):
+                    clock_pending = pool.submit(_remote_clock_results, target, profile['time_server'])
+                _ensure_robot_clock(report)
+                if clock_checks is None:
+                    report['results'].append(result('clock.observer.pending', 'Zeit', 'unknown',
+                        'Zeitprüfung des GUI-Rechners läuft', source='Chrony/SSH', knowledge_id='clock_sync'))
+                else:
+                    aged = {'results': copy.deepcopy(clock_checks)}
+                    age_payload(aged, time.monotonic() - clock_updated)
+                    report['results'].extend(aged['results'])
+                report['stats']['clock'] = clock_stat(report['results'])
                 yield finalize(report)
         return
     local_options = {k: v for k, v in options.items() if k not in ("via", "host")}

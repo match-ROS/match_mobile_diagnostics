@@ -196,5 +196,25 @@
     ],
     "evidence_status": "historical_cases_and_configured_expectations",
     "updated_at": "2026-09-29"
+  },
+  {
+    "id": "clock_sync",
+    "title": "Zeitstempel oder Chrony nicht synchron",
+    "symptoms": [
+      "Zeitstempel weichen ab",
+      "Chrony-Quelle falsch",
+      "TF-Zeitfehler"
+    ],
+    "checks": [
+      "clock."
+    ],
+    "manual_steps": [
+      "Chrony-Server 10.145.8.50 in der Konfiguration beider Rechner prüfen.",
+      "Mit chronyc -n sources die ausgewählte ^*-Quelle prüfen.",
+      "Mit chronyc -n tracking Leap status und System time prüfen.",
+      "Netzwerkweg zu 10.145.8.50 und Chrony-Dienstzustand prüfen."
+    ],
+    "evidence_status": "user_provided_expected_server_not_live_verified",
+    "updated_at": "2026-09-30"
   }
 ]

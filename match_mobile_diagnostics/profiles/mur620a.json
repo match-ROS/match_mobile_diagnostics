@@ -1,5 +1,5 @@
 {
-  "profile_version": 1,
+  "profile_version": 2,
   "robot": "mur620a",
   "id": "mur620a",
   "ros_domain_id": 62,
@@ -168,6 +168,13 @@
       "revision": "7dd70ed2c72f7b2d95d190efdfd15bb2b64344ce",
       "status": "configured_not_live_verified",
       "recorded_at": "2026-09-29"
+    },
+    "time_server": {
+      "source": "Nutzerangabe zur Chrony-Topologie",
+      "revision": "2026-09-30",
+      "status": "user_provided_not_live_verified",
+      "recorded_at": "2026-09-30"
     }
-  }
+  },
+  "time_server": "10.145.8.50"
 }

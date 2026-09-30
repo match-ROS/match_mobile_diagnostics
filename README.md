@@ -108,7 +108,7 @@ python -m match_mobile_diagnostics.cli knowledge show ur_reverse
 python -m match_mobile_diagnostics.cli knowledge list --format json
 ```
 
-Die GUI zeigt getrennte MiR-/MuR-Akkus, beide URs mit Programm und ROS-Controllern sowie die Hubsäulen. Befunde enthalten Soll, Ist, Quelle, Zeitpunkt, mögliche Ursachen und nächste Schritte. Filter ändern nur die Darstellung. Bestätigte manuelle Prüfpunkte und Freitextbeobachtungen bleiben **Nutzerangaben**; sie ändern keinen automatischen Prüferfolg. Export und Auswahlwechsel berücksichtigen Roboter und Sitzung, alte Live-Werte werden als veraltet markiert.
+Auf einem MuR-PC wählt die GUI diesen Roboter und lokalen Zugriff vor; auf anderen Rechnern startet sie mit SSH-Zugriff. Die GUI zeigt getrennte MiR-/MuR-Akkus, beide URs mit Programm und ROS-Controllern sowie die Hubsäulen. Befunde enthalten Soll, Ist, Quelle, Zeitpunkt, mögliche Ursachen und nächste Schritte. Filter ändern nur die Darstellung. Bestätigte manuelle Prüfpunkte und Freitextbeobachtungen bleiben **Nutzerangaben**; sie ändern keinen automatischen Prüferfolg. Export und Auswahlwechsel berücksichtigen Roboter und Sitzung, alte Live-Werte werden als veraltet markiert.
 
 Für Agenten ist JSON die verbindliche Schnittstelle: zuerst einen Scan erstellen, dann `results[].status`, `expected`, `actual`, `evidence`, `causes`, `next_steps` und `knowledge_id` auswerten. Keine Diagnose aus Farben oder frei formuliertem Terminaltext ableiten. [AGENTS.md](AGENTS.md) beschreibt den Arbeitsablauf.
 
@@ -121,6 +121,10 @@ Für Agenten ist JSON die verbindliche Schnittstelle: zuerst einen Scan erstelle
 | `not_applicable` | Prüfung trifft auf dieses Profil nicht zu. |
 
 CLI-Exitcodes: **0** vollständig und ohne Befunde, **1** Fehler oder Hinweise, **2** unvollständig ohne Fehler/Hinweise, **3** Aufruf-/interner Fehler, **130** abgebrochen. Bei gleichzeitigem Fehler und fehlenden Prüfungen gilt Exit 1; `complete` und `counts.unknown` bleiben zusätzlich relevant. „Alle Checks bestanden“ bezieht sich ausschließlich auf die vorgesehenen automatischen Prüfungen.
+
+## Zeitsynchronisation
+
+Die Zeitprüfung liest die Chrony-Konfiguration und den aktuellen Status auf dem Roboter-PC. Bei SSH-Zugriff prüft sie zusätzlich den GUI-Rechner und misst eine begrenzte Uhrdifferenz per SSH. Erwartet wird der vom Nutzer genannte Chrony-Server `10.145.8.50`; sein Betrieb wurde nicht als gesunder Ausgangszustand vorausgesetzt. Ohne `chronyc` werden Konfiguration und tatsächliche Synchronisation getrennt bewertet. Die GUI zeigt das Ergebnis in „Zeitsynchronisation“ und die Belege unter „Befunde“. [Checkliste](match_mobile_diagnostics/knowledge/clock_sync.md).
 
 ## Sollprofile und Hubsäulen
 

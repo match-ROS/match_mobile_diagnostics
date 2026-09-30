@@ -251,3 +251,44 @@ def test_ur_card_distinguishes_unavailable_controller_query_from_confirmed_empty
     data["stats"]["ur_l"]["ros"] = {"controllers_available": False}
     window.apply_report(data)
     assert "Controller nicht prüfbar" in window.stat_labels["ur_l"].text()
+
+
+def test_robot_pc_starts_with_matching_local_target(app, monkeypatch):
+    monkeypatch.setattr("match_mobile_diagnostics.gui.socket.gethostname", lambda: "mur620a")
+    diagnostic = DiagnosticWindow()
+    try:
+        assert diagnostic.robot_combo.currentText() == "mur620a"
+        assert diagnostic.via_combo.currentData() == "local"
+    finally:
+        diagnostic.close()
+        diagnostic.deleteLater()
+        app.processEvents()
+
+
+def test_scan_child_can_import_package_outside_checkout(window, app, tmp_path, monkeypatch):
+    import socket
+    local_host = socket.gethostname().split(".")[0]
+    robot = next(name for name in ("mur620a", "mur620b", "mur620c", "mur620d") if name != local_host)
+    monkeypatch.chdir(tmp_path)
+    window.robot_combo.setCurrentText(robot)
+    window.via_combo.setCurrentIndex(1)
+    window.start_scan()
+    wait_for(app, lambda: not window._running, timeout=6.0)
+    assert window._last_report is not None, window.process_log.toPlainText()
+    assert window._last_report["robot"] == robot
+    assert any(item["id"] == "host.identity" for item in window._last_report["results"])
+    assert "ModuleNotFoundError" not in window.process_log.toPlainText()
+
+
+def test_clock_card_displays_robot_observer_and_bounded_difference(window):
+    value = report()
+    value['stats']['clock'] = {
+        'text': 'Roboter: synchron mit 10.145.8.50\nGUI-PC: synchron mit 10.145.8.50\nAbweichung: +2.0 ms ± 4.0 ms',
+        'status': 'pass', 'source': 'Chrony/SSH-Zeitprobe', 'observed_at': '2026-09-30T10:00:00+00:00',
+        'age_seconds': 0.2,
+    }
+    window.apply_report(value)
+    assert 'Roboter: synchron' in window.stat_labels['clock'].text()
+    assert 'GUI-PC: synchron' in window.stat_labels['clock'].text()
+    assert '+2.0 ms' in window.stat_labels['clock'].text()
+    assert 'Chrony/SSH-Zeitprobe' in window.stat_labels['clock'].toolTip()
