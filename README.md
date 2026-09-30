@@ -126,6 +126,15 @@ CLI-Exitcodes: **0** vollständig und ohne Befunde, **1** Fehler oder Hinweise, 
 
 Die Zeitprüfung liest die Chrony-Konfiguration und den aktuellen Status auf dem Roboter-PC. Bei SSH-Zugriff prüft sie zusätzlich den GUI-Rechner und misst eine begrenzte Uhrdifferenz per SSH. Erwartet wird der vom Nutzer genannte Chrony-Server `10.145.8.50`; sein Betrieb wurde nicht als gesunder Ausgangszustand vorausgesetzt. Ohne `chronyc` werden Konfiguration und tatsächliche Synchronisation getrennt bewertet. Die GUI zeigt das Ergebnis in „Zeitsynchronisation“ und die Belege unter „Befunde“. [Checkliste](match_mobile_diagnostics/knowledge/clock_sync.md).
 
+Die dazu beauftragte Einrichtung ist ein **separater, ausdrücklich aufzurufender Administrationsschritt**:
+
+```bash
+sudo python3 scripts/configure_chrony.py --apply
+```
+
+Der Schritt installiert bei Bedarf Chrony, sichert `/etc/chrony/chrony.conf`, deaktiviert die bekannten Ubuntu-Standardpools, setzt `server 10.145.8.50 iburst prefer` in einer verwalteten Datei und prüft Auswahl sowie Synchronisation. Die normale Diagnose ruft dieses Skript niemals auf. Die Paketinstallation ersetzt unter Ubuntu `systemd-timesyncd`; der Skriptaufruf benötigt daher Systemrechte.
+
+
 ## Sollprofile und Hubsäulen
 
 Versionierte Profile enthalten Adressen, Schnittstellen, Rückverbindungsports und Hardwaremerkmale. Jeder Sollwert hat eine Herkunft, Quellrevision, Erfassungsdatum und Bestätigungsstatus. Diese Angaben beschreiben konfigurierte Erwartungen, keine pauschal live verifizierte Bestandsaufnahme. Besonders die Links-/Rechts-Zuordnung der USB-Adapter an **mur620c ist vorläufig** und muss am Roboter bestätigt werden.

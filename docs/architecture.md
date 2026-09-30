@@ -48,6 +48,8 @@ Statuskarten enthalten mindestens Text, Quelle und Zeitinformationen; zusätzlic
 
 Aktuelle Standardgrenzen: MiR-Akku 10 s, MuR-BMS 5 s, Lift-Kommunikation 2 s, Dashboard-/UR-Kommunikation 6 s. UR-Modustopics sind zuverlässige transient-local Änderungsmeldungen; lange unveränderte Werte sind normal. Zusätzliche aktuelle Kommunikation muss ihre Verlässlichkeit bestätigen. Ein alter, zwischengespeichert publizierter Liftwert genügt nicht: Der zusätzliche Ewellix-Diagnosestatus muss einen aktuellen erfolgreichen Hardwarezyklus belegen.
 
+Die Zeitprüfung liest auf dem Roboter und bei SSH-Zugriff auch auf dem GUI-Rechner Chrony-Konfiguration, ausgewählte Quelle, letzte gute Messung und Tracking-Status. Eine zusätzliche SSH-Zeitprobe bewertet die mögliche Uhrdifferenz als Intervall aus zwei lokalen Messzeitpunkten; hohe Netzlaufzeit ergibt `unknown`, keinen erfundenen Pass oder Fehler. Chrony-Daten werden höchstens 60 s verwendet. Die ausdrücklich aufgerufene Administrationshilfe `scripts/configure_chrony.py --apply` gehört nicht zum Diagnosepfad.
+
 Profile trennen physische Identität von ROS-Namespace und vermerken für Sollwerte Herkunft, Quellrevision, Erfassungsdatum und Bestätigungsstatus. Laufzeitabweichungen korrigieren die Profile niemals automatisch. Die mur620c-Liftports sind ausdrücklich vorläufig.
 
 ## Erweiterung und Installation

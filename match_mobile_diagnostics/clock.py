@@ -250,31 +250,39 @@ def compare_remote_clock(target: str):
 
 
 def clock_stat(results):
-    """Compact summary for the GUI; detailed evidence remains in results."""
+    """Compact two-line GUI summary; detailed evidence remains in results."""
     checks = {item['id']: item for item in results if item.get('id', '').startswith('clock.')}
     if not checks:
         return None
-    lines = []
-    for role, label in (('robot', 'Roboter'), ('observer', 'GUI-PC')):
+    def short_state(role):
         available = checks.get(f'clock.{role}.available')
         source = checks.get(f'clock.{role}.source')
         sync = checks.get(f'clock.{role}.sync')
-        if available:
-            if available['status'] == 'fail':
-                lines.append(f'{label}: Chrony fehlt')
-            elif source and sync and source['status'] == sync['status'] == 'pass':
-                lines.append(f'{label}: synchron mit {source["expected"]}')
-            else:
-                lines.append(f'{label}: Quelle/Sync prüfen')
+        if not available:
+            return 'nicht geprüft'
+        if available['status'] == 'fail':
+            return 'Chrony fehlt'
+        if source and sync and source['status'] == sync['status'] == 'pass':
+            return 'synchron'
+        return 'Quelle/Sync prüfen'
+
+    robot_state = short_state('robot')
+    observer_state = short_state('observer')
     if 'clock.observer.available' not in checks:
-        lines.append('GUI läuft auf dem Roboter-PC')
+        line = f'Roboter/GUI: {robot_state}'
+    elif robot_state == observer_state == 'synchron':
+        server = checks['clock.robot.source'].get('expected', 'Zeitserver')
+        line = f'Roboter und GUI: {server} synchron'
+    else:
+        line = f'Roboter: {robot_state} · GUI: {observer_state}'
+    lines = [line]
     pair = checks.get('clock.pair.offset')
     if pair:
         actual = pair.get('actual')
         if isinstance(actual, dict) and isinstance(actual.get('remote_minus_gui_ms'), (int, float)):
-            lines.append(f'Abweichung: {actual["remote_minus_gui_ms"]:+.1f} ms ± {actual["uncertainty_ms"]:.1f} ms')
+            lines.append(f'Differenz: {actual["remote_minus_gui_ms"]:+.1f} ± {actual["uncertainty_ms"]:.1f} ms')
         else:
-            lines.append('Abweichung: nicht messbar')
+            lines.append('Differenz: nicht messbar')
     statuses = [item['status'] for item in checks.values()]
     status = next((item for item in ('fail', 'unknown', 'warn') if item in statuses), 'pass')
     latest = max(checks.values(), key=lambda item: item.get('observed_at') or '')

@@ -283,12 +283,11 @@ def test_scan_child_can_import_package_outside_checkout(window, app, tmp_path, m
 def test_clock_card_displays_robot_observer_and_bounded_difference(window):
     value = report()
     value['stats']['clock'] = {
-        'text': 'Roboter: synchron mit 10.145.8.50\nGUI-PC: synchron mit 10.145.8.50\nAbweichung: +2.0 ms ± 4.0 ms',
+        'text': 'Roboter und GUI: 10.145.8.50 synchron\nDifferenz: +2.0 ± 4.0 ms',
         'status': 'pass', 'source': 'Chrony/SSH-Zeitprobe', 'observed_at': '2026-09-30T10:00:00+00:00',
         'age_seconds': 0.2,
     }
     window.apply_report(value)
-    assert 'Roboter: synchron' in window.stat_labels['clock'].text()
-    assert 'GUI-PC: synchron' in window.stat_labels['clock'].text()
-    assert '+2.0 ms' in window.stat_labels['clock'].text()
+    assert 'Roboter und GUI: 10.145.8.50 synchron' in window.stat_labels['clock'].text()
+    assert '+2.0 ± 4.0 ms' in window.stat_labels['clock'].text()
     assert 'Chrony/SSH-Zeitprobe' in window.stat_labels['clock'].toolTip()

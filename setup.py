@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="match_mobile_diagnostics",
-    version="0.1.2",
+    version="0.1.3",
     description="Read-only hardware diagnostics for MuR620 robots",
     license="MIT",
     packages=find_packages(),
