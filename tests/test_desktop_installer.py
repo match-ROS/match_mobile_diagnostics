@@ -90,3 +90,29 @@ def test_snap_ide_data_home_does_not_hide_application_from_normal_session(tmp_pa
     assert DESKTOP._default_data_home(home, env) == home / '.local/share'
     env.pop('SNAP')
     assert DESKTOP._default_data_home(home, env) == home / 'snap/code/249/.local/share'
+
+
+def test_snap_gio_trust_uses_host_modules_and_string_metadata(tmp_path, monkeypatch):
+    launcher = tmp_path / 'mur-diagnostics'
+    launcher.write_text('#!/bin/sh\nexit 0\n')
+    launcher.chmod(0o755)
+    desktop_dir = tmp_path / 'Desktop'
+    desktop_dir.mkdir()
+    calls = []
+
+    def fake_run(command, **kwargs):
+        calls.append((command, kwargs))
+        return subprocess.CompletedProcess(command, 0, '', '')
+
+    monkeypatch.setenv('SNAP', '/snap/code/249')
+    monkeypatch.setenv('GIO_MODULE_DIR', '/home/test/snap/code/common/.cache/gio-modules')
+    monkeypatch.setattr(DESKTOP.shutil, 'which', lambda name: '/usr/bin/gio' if name == 'gio' else None)
+    monkeypatch.setattr(DESKTOP.subprocess, 'run', fake_run)
+    data_home = tmp_path / 'share'
+    _, trusted = DESKTOP.install(ROOT, data_home, tmp_path / 'bin', launcher=launcher,
+                                 desktop_dir=desktop_dir, check_gui=False)
+    assert trusted is True
+    command, kwargs = calls[-1]
+    assert command[0:4] == ['gio', 'set', '--type', 'string']
+    assert kwargs['env']['XDG_DATA_HOME'] == str(data_home)
+    assert 'GIO_MODULE_DIR' not in kwargs['env']

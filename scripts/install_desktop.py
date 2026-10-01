@@ -172,8 +172,13 @@ def install(source, data_home, bin_dir, *, desktop_dir=None, launcher=None, chec
     trusted = None
     if 'shortcut' in paths and shutil.which('gio'):
         try:
-            response = subprocess.run(['gio', 'set', '--type', 'boolean', str(paths['shortcut']),
-                                       'metadata::trusted', 'true'], capture_output=True, text=True, timeout=5)
+            gio_env = os.environ.copy()
+            gio_env['XDG_DATA_HOME'] = str(data_home)
+            if gio_env.get('SNAP'):
+                gio_env.pop('GIO_MODULE_DIR', None)
+            response = subprocess.run(['gio', 'set', '--type', 'string', str(paths['shortcut']),
+                                       'metadata::trusted', 'true'], capture_output=True, text=True,
+                                      timeout=5, env=gio_env)
             trusted = response.returncode == 0
         except (OSError, subprocess.TimeoutExpired):
             trusted = False
