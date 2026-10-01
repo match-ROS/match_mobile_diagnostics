@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>MuR Diagnose</title>
+  <rect x="4" y="4" width="120" height="120" rx="27" fill="#1d4059"/>
+  <rect x="25" y="34" width="78" height="52" rx="13" fill="none" stroke="#f4f8f9" stroke-width="6"/>
+  <path d="M35 61h15l9-12 10 24 9-12h15" fill="none" stroke="#6ed0bf" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+  <circle cx="44" cy="97" r="7" fill="#f4f8f9"/>
+  <circle cx="84" cy="97" r="7" fill="#f4f8f9"/>
+</svg>

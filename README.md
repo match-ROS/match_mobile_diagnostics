@@ -43,6 +43,19 @@ python3 scripts/install_cli.py
 
 `--source REPOSITORY`, `--prefix VERZEICHNIS` und `--bin-dir VERZEICHNIS` erlauben andere lokale Pfade. Der Installer legt ausschließlich Paketcode, Profile, Wissensartikel und Lizenz unter `~/.local/share/mur-diagnostics/releases/<version>-<inhalts-hash>` ab und aktualisiert den verwalteten CLI-Symlink atomar. Eine unveränderte Installation ist wiederholbar; fremde vorhandene CLI-Dateien oder Symlinks werden nicht überschrieben. Bytecode-Dateien werden auch in gestarteten Kindprozessen unterdrückt, damit das Release unverändert bleibt. Diese explizite Installation wird niemals durch einen Diagnoselauf ausgelöst.
 
+### GUI in der Ubuntu-Anwendungssuche
+
+Der Desktop-Installer richtet die GUI für den **aktuellen Benutzer** ein. Er installiert bei Bedarf zuerst den offline nutzbaren CLI-Einstieg, legt „MuR Diagnose“ in der Anwendungssuche ab und erstellt im konfigurierten Desktop-Ordner eine anklickbare Verknüpfung mit eigenem Icon. Er benötigt kein `sudo`; Voraussetzung ist `python3-pyqt5` für das System-Python (`/usr/bin/python3`).
+
+```bash
+cd /home/rosmatch/colcon_ws/src/match_mobile_diagnostics
+python3 scripts/install_desktop.py
+```
+
+Danach „MuR Diagnose“ in der Ubuntu-Anwendungssuche öffnen oder auf dem Desktop das gleichnamige Icon doppelklicken. Die Verknüpfung wird für GNOME als vertrauenswürdig markiert, soweit der Dateimanager dies unterstützt. Falls sie zunächst als Textdatei erscheint, im Kontextmenü einmal „Starten erlauben“ wählen. Fehlt ein Desktop-Ordner, wird nur der Eintrag in der Anwendungssuche installiert.
+
+Der Aufruf ist wiederholbar und überschreibt keine fremden gleichnamigen Dateien. Für einen bereits installierten CLI-Einstieg (etwa aus einer virtuellen Umgebung) `python3 scripts/install_desktop.py --launcher /ABSOLUTER/PFAD/ZU/mur-diagnostics` verwenden; so bleibt diese Installation unverändert. Mit `--no-desktop-shortcut` entsteht nur der Suchmenü-Eintrag. Der Installer ändert ausschließlich Dateien im Benutzerprofil und wird durch Diagnose oder GUI-Start nie automatisch ausgeführt.
+
 Alternativ wird das Paket im vorhandenen Colcon-Workspace gebaut:
 
 ```bash
